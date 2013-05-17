@@ -1,11 +1,14 @@
 use strict;
 use warnings;
 use diagnostics;
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Linux::IOPriority qw(get_io_priority set_io_priority);
 pass "module loaded file...";
 
-my $i = get_io_priority();
+my $i = set_io_priority(4,2,$$);
+is( $i, 4 );
+
+$i = get_io_priority();
 is($i, 4 );
 diag("ioprio: $i");
 
