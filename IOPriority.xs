@@ -41,7 +41,7 @@ PROTOTYPES: DISABLE
 
 SV *
 get_io_priority(int pid = 0)
-    PPCODE:
+    CODE:
        int ioprio_class, ioprio;
        ioprio = syscall(__NR_ioprio_get, IOPRIO_WHO_PROCESS, pid);
        SV * return_value;
@@ -50,12 +50,13 @@ get_io_priority(int pid = 0)
        }
        ioprio_class = ioprio >> IOPRIO_CLASS_SHIFT;
        ioprio = ioprio & 0xff;
-       EXTEND(SP,1);
-       PUSHs(sv_2mortal(newSViv(ioprio)));
+       RETVAL = newSViv(ioprio);
+       OUTPUT:
+        RETVAL
 
 SV *
 set_io_priority(int io_prio=0,int class=2,int pid=0)
-    PPCODE:
+    CODE:
 
     switch (io_prio) {
         case IOPRIO_CLASS_NONE:
@@ -77,7 +78,9 @@ set_io_priority(int io_prio=0,int class=2,int pid=0)
       return_value = newSViv(io_prio);
   }
 
-  EXTEND(SP,1);
-  PUSHs(sv_2mortal(return_value));
+  RETVAL = return_value;
+
+  OUTPUT:
+    RETVAL
 
 
