@@ -129,9 +129,9 @@ Linux::IOPriority
 
     set_io_priority(-10,IOPRIO_CLASS_BE,$pid);
 
-    # or
+    # set the threads' priority
 
-    set_io_priority(-5,IOPRIO_CLASS_RT,$pid);
+    set_io_priority(-5,IOPRIO_CLASS_RT,$pid, IOPRIO_WHO_PROCESS_GROUP);
 
 =head2 Priority classes and process groups
 
