@@ -74,7 +74,7 @@ sub set {
     my $class    = $args{class}    || Linux::IOPriority::IOPRIO_CLASS_BE;
 
     my @pid = qw(pid uid gid);
-    if ( @args{@pid} > 1 ) {
+    if ( (@args{@pid}||0) > 1 ) {
         die "ambiguous parameters (", 
             join ",", grep { exists $args{$_} } @args{@pid},
             ")";
