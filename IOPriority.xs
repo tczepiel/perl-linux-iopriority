@@ -67,7 +67,7 @@ set_io_priority(int io_prio=0,int class=2,int pid=0)
             break;
         case IOPRIO_CLASS_IDLE:
             io_prio = 7;
-            break;
+           break;
    }
 
   SV * return_value;

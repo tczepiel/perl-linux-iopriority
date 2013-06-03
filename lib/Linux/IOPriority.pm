@@ -36,15 +36,59 @@ our @EXPORT = qw(
 
 XSLoader::load('Linux::IOPriority', $VERSION);
 
+
+sub new {
+    my $class = shift;
+    my %args  = @_;
+
+    $class    = ref($class) || $class;
+
+    my $prio       = $args{priority};
+    my $pid        = $args{pid}      || $$;
+    my $prio_class = $args{class}    || Linux::IOPriority::IOPRIO_CLASS_BE;
+
+    my $current_prio = Linux::IOPriority::get_io_priority($pid) || die "unable to get priority for process $pid";
+
+    if ( $prio ) {
+        return if ($current_prio == $prio && $prio_class == Linux::IOPriority::IOPRIO_CLASS_BE);
+        Linux::IOPriority::set_io_priority($prio,$prio_class,$pid) || die "failed to set priority ($prio) for $pid";
+    }
+
+    return 
+        bless sub {
+           Linux::IOPriority::set_io_priority($current_prio,$prio_class,$pid) or die "unable to set priority ($prio) for pid $pid"
+            if $prio;
+        } => $class;
+}
+
+sub set {
+    my $self = shift;
+    my %args = @_;
+    my $pid      = $args{pid}      || $$;
+    my $priority = $args{priority} || die "parameter priority required!";
+    my $class    = $args{class}    || Linux::IOPriority::IOPRIO_CLASS_BE;
+
+    return Linux::IOPriority::set_io_priority($priority,$class,$pid);
+}
+
+sub get {
+    my $self = shift;
+    my %args = @_;
+    my $pid  = $args{pid} || $$;
+    return Linux::IOPriority::get_io_priority($pid);
+}
+
+sub DESTROY {
+    shift->();
+}
+
 1;
 
 =head1 NAME
 
 Linux::IOPriority
 
-=head1 SYNOPSIS
-
-=head2 Functional Interface
+=head1 Functional Interface
 
     use Linux::IOPriority;
 
@@ -55,9 +99,9 @@ Linux::IOPriority
 
     set_io_priority(-10,IOPRIO_CLASS_BE,$pid);
 
-=head1 Priority classes and process groups
+=head2 Priority classes and process groups
 
-These symbols are exported by default:
+Nothing exported by default.
 
 =head2 Priority classes
 
@@ -72,7 +116,7 @@ These symbols are exported by default:
     IOPRIO_PROCESS_GROUP    # pgid
     IOPRIO_USER             # uid
 
-=head2 OO Interface
+=head1 OO Interface
 
     use Linux::IOPriority;
 
@@ -90,9 +134,11 @@ These symbols are exported by default:
         pid => $somepid,
     );
     
-=head1 METHODS
+=head2 METHODS
 
-=head2 new
+=head3 new
+
+   optional parameter 'priority', sets your new IO priority until the end of the scope, dies on failure. 
 
 =head3 set
 
