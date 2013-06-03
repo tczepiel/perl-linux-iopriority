@@ -41,8 +41,9 @@ sub new {
     my $class = shift;
     my %args  = @_;
 
-    $class    = ref($class) || $class;
-    my @pid = qw(pid uid gid);
+    $class     = ref($class) || $class;
+    my %who2id = ( pid => IOPRIO_PROCESS, gid => IOPRIO_PROCESS_GROUP, uid => IOPRIO_USER );
+    my @pid    = keys %who2id;
 
     if ( (@args{@pid}||0) > 1 ) {
         die "ambiguous parameters (", 
@@ -58,7 +59,9 @@ sub new {
 
     if ( $prio ) {
         return if ($current_prio == $prio && $prio_class == Linux::IOPriority::IOPRIO_CLASS_BE);
-        Linux::IOPriority::set_io_priority($prio,$prio_class,$pid) || die "failed to set priority ($prio) for $pid";
+        my ($ioprio_who_class) = (grep { exists $args{$_} && $args{$_} } keys %who2id) || 'pid';
+
+        Linux::IOPriority::set_io_priority($prio,$prio_class,$pid, $who2id{$ioprio_who_class}) || die "failed to set priority ($prio) for $pid";
     }
 
     $current_prio = undef unless exists $args{priority};
@@ -73,7 +76,9 @@ sub set {
     my $priority = $args{priority} || die "parameter priority required!";
     my $class    = $args{class}    || Linux::IOPriority::IOPRIO_CLASS_BE;
 
-    my @pid = qw(pid uid gid);
+    my %who2id = ( pid => IOPRIO_PROCESS, gid => IOPRIO_PROCESS_GROUP, uid => IOPRIO_USER );
+    my @pid    = keys %who2id;
+
     if ( (@args{@pid}||0) > 1 ) {
         die "ambiguous parameters (", 
             join ",", grep { exists $args{$_} } @args{@pid},
@@ -81,8 +86,10 @@ sub set {
     }
 
     my ($pid) = grep { defined } @args{@pid}, $$;
+    my ($ioprio_who_class) =( grep { $args{$_}} keys %who2id) || 'pid';
+    warn "who class $ioprio_who_class";
 
-    return Linux::IOPriority::set_io_priority($priority,$class,$pid);
+    return Linux::IOPriority::set_io_priority($priority, $class, $pid, $who2id{$ioprio_who_class});
 }
 
 sub get {

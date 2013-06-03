@@ -55,7 +55,7 @@ get_io_priority(int pid = 0)
         RETVAL
 
 SV *
-set_io_priority(int io_prio=0,int class=2,int pid=0)
+set_io_priority(int io_prio=0,int class=2,int pid=0,int ioprio_who=IOPRIO_WHO_PROCESS)
     CODE:
 
     switch (io_prio) {
@@ -71,7 +71,7 @@ set_io_priority(int io_prio=0,int class=2,int pid=0)
    }
 
   SV * return_value;
-  if( syscall(__NR_ioprio_set,IOPRIO_WHO_PROCESS, pid, io_prio | class << IOPRIO_CLASS_SHIFT ) == -1 ) {
+  if( syscall(__NR_ioprio_set,ioprio_who, pid, io_prio | class << IOPRIO_CLASS_SHIFT ) == -1 ) {
         return_value = &PL_sv_undef;
   }
   else {
