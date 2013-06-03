@@ -42,10 +42,17 @@ sub new {
     my %args  = @_;
 
     $class    = ref($class) || $class;
+    my @pid = qw(pid uid gid);
+
+    if ( (@args{@pid}||0) > 1 ) {
+        die "ambiguous parameters (", 
+            join ",", @args{@pid},
+            ")";
+    }
 
     my $prio       = $args{priority};
-    my $pid        = $args{pid}      || $$;
-    my $prio_class = $args{class}    || Linux::IOPriority::IOPRIO_CLASS_BE;
+    my ($pid)      = grep { defined } (@args{@pid}, $$);
+    my $prio_class = $args{class} || Linux::IOPriority::IOPRIO_CLASS_BE;
 
     my $current_prio = Linux::IOPriority::get_io_priority($pid) || die "unable to get priority for process $pid";
 
@@ -63,9 +70,17 @@ sub new {
 sub set {
     my $self = shift;
     my %args = @_;
-    my $pid      = $args{pid}      || $$;
     my $priority = $args{priority} || die "parameter priority required!";
     my $class    = $args{class}    || Linux::IOPriority::IOPRIO_CLASS_BE;
+
+    my @pid = qw(pid uid gid);
+    if ( @args{@pid} > 1 ) {
+        die "ambiguous parameters (", 
+            join ",", grep { exists $args{$_} } @args{@pid},
+            ")";
+    }
+
+    my ($pid) = grep { defined } @args{@pid}, $$;
 
     return Linux::IOPriority::set_io_priority($priority,$class,$pid);
 }
