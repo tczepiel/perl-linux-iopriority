@@ -29,7 +29,7 @@ enum {
 
 enum {
     IOPRIO_WHO_PROCESS = 1,
-    IOPRIO_WHO_PGRP,
+    IOPRIO_WHO_PROCESS_GROUP,
     IOPRIO_WHO_USER,
 };
 
@@ -40,10 +40,10 @@ MODULE = Linux::IOPriority		PACKAGE = Linux::IOPriority
 PROTOTYPES: DISABLE 
 
 SV *
-get_io_priority(int pid = 0)
+get_io_priority(int pid = 0, int ioprio_who=IOPRIO_WHO_PROCESS)
     CODE:
        int ioprio_class, ioprio;
-       ioprio = syscall(__NR_ioprio_get, IOPRIO_WHO_PROCESS, pid);
+       ioprio = syscall(__NR_ioprio_get, ioprio_who, pid);
        SV * return_value;
        if ( ioprio == -1 ) {
             return_value = &PL_sv_undef;

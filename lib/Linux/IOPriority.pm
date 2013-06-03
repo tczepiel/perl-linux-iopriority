@@ -87,7 +87,6 @@ sub set {
 
     my ($pid) = grep { defined } @args{@pid}, $$;
     my ($ioprio_who_class) =( grep { $args{$_}} keys %who2id) || 'pid';
-    warn "who class $ioprio_who_class";
 
     return set_io_priority($priority, $class, $pid, $who2id{$ioprio_who_class});
 }
