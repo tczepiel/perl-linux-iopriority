@@ -126,7 +126,7 @@ Nothing exported by default.
     );
 
     $ioprio->set(
-        user => $uid,
+        uid      => $uid,
         priority => $priority,
     );
 
@@ -138,13 +138,58 @@ Nothing exported by default.
 
 =head3 new
 
-   optional parameter 'priority', sets your new IO priority until the end of the scope, dies on failure. 
+Parameters:
+
+=over 
+
+=item *
+
+priority 
+    Required.
+
+=item *
+
+class
+    optional.
+
+=item *
+
+pid
+    default: $$
+
+=back
 
 =head3 set
 
+=over 
+
+=item *
+
+priority 
+    Required.
+
+=item *
+
+class
+    optional.
+
+=item *
+
+pid
+    default: $$
+
+=back
+
 =head3 get
 
+=over
+
+=item *
+
+pid
+    default: $$
 
 
+=back
 
 =cut
