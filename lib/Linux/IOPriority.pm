@@ -54,11 +54,10 @@ sub new {
         Linux::IOPriority::set_io_priority($prio,$prio_class,$pid) || die "failed to set priority ($prio) for $pid";
     }
 
+    $current_prio = undef unless exists $args{priority};
+
     return 
-        bless sub {
-           Linux::IOPriority::set_io_priority($current_prio,$prio_class,$pid) or die "unable to set priority ($prio) for pid $pid"
-            if $prio;
-        } => $class;
+        bless \$current_prio => $class;
 }
 
 sub set {
@@ -79,7 +78,9 @@ sub get {
 }
 
 sub DESTROY {
-    shift->();
+    my $self = shift;
+    return unless defined $$self;
+    $self->set(priority => $$self);
 }
 
 1;
@@ -133,6 +134,7 @@ Nothing exported by default.
     $ioprio->get(
         pid => $somepid,
     );
+
     
 =head2 METHODS
 
@@ -150,7 +152,7 @@ priority
 =item *
 
 class
-    optional.
+    optional, default 'best effort'
 
 =item *
 
@@ -171,7 +173,7 @@ priority
 =item *
 
 class
-    optional.
+    optional, default 'best effort'
 
 =item *
 
@@ -188,7 +190,6 @@ pid
 
 pid
     default: $$
-
 
 =back
 
