@@ -91,14 +91,25 @@ Linux::IOPriority
 
 =head1 Functional Interface
 
-    use Linux::IOPriority;
+    use Linux::IOPriority qw(
+        get_io_priority
+        set_io_priority
+
+        IOPRIO_CLASS_BE
+        IOPRIO_CLASS_RT
+    );
 
     my $prority = get_io_priority();
     my $prio    = get_io_priority($pid);
 
+    # maybe we don't have appropriate permissions?
     die "failed to set requested io priority" unless defined set_io_priority(-10);
 
     set_io_priority(-10,IOPRIO_CLASS_BE,$pid);
+
+    # or
+
+    set_io_priority(-5,IOPRIO_CLASS_RT,$pid);
 
 =head2 Priority classes and process groups
 
