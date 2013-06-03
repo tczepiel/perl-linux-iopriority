@@ -44,14 +44,61 @@ Linux::IOPriority
 
 =head1 SYNOPSIS
 
-use Linux::IOPriority;
+=head2 Functional Interface
 
-my $prority = get_io_priority();
-my $prio    = get_io_priority($pid);
+    use Linux::IOPriority;
 
-die "failed to set requested io priority" unless defined set_io_priority(-10);
+    my $prority = get_io_priority();
+    my $prio    = get_io_priority($pid);
 
-set_io_priority(-10,IOPRIO_CLASS_BE,$pid);
+    die "failed to set requested io priority" unless defined set_io_priority(-10);
+
+    set_io_priority(-10,IOPRIO_CLASS_BE,$pid);
+
+=head1 Priority classes and process groups
+
+These symbols are exported by default:
+
+=head2 Priority classes
+
+    IOPRIO_CLASS_NONE 
+    IOPRIO_CLASS_RT    # Realtime
+    IOPRIO_CLASS_BE    # Best effort
+    IOPRIO_CLASS_IDLE
+
+=head2 Process groups
+
+    IOPRIO_PROCESS          # pid
+    IOPRIO_PROCESS_GROUP    # pgid
+    IOPRIO_USER             # uid
+
+=head2 OO Interface
+
+    use Linux::IOPriority;
+
+    # set new priority for own process
+    my $ioprio = LinuxPriority->new(
+        priority => $priority,
+    );
+
+    $ioprio->set(
+        user => $uid,
+        priority => $priority,
+    );
+
+    $ioprio->get(
+        pid => $somepid,
+    );
+    
+=head1 METHODS
+
+=head2 new
+
+=head3 set
+
+=head3 get
+
+
 
 
 =cut
