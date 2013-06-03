@@ -53,15 +53,15 @@ sub new {
 
     my $prio       = $args{priority};
     my ($pid)      = grep { defined } (@args{@pid}, $$);
-    my $prio_class = $args{class} || Linux::IOPriority::IOPRIO_CLASS_BE;
+    my $prio_class = $args{class} || IOPRIO_CLASS_BE;
 
-    my $current_prio = Linux::IOPriority::get_io_priority($pid) || die "unable to get priority for process $pid";
+    my $current_prio = get_io_priority($pid) || die "unable to get priority for process $pid";
 
     if ( $prio ) {
-        return if ($current_prio == $prio && $prio_class == Linux::IOPriority::IOPRIO_CLASS_BE);
+        return if ($current_prio == $prio && $prio_class == IOPRIO_CLASS_BE);
         my ($ioprio_who_class) = (grep { exists $args{$_} && $args{$_} } keys %who2id) || 'pid';
 
-        Linux::IOPriority::set_io_priority($prio,$prio_class,$pid, $who2id{$ioprio_who_class}) || die "failed to set priority ($prio) for $pid";
+        set_io_priority($prio,$prio_class,$pid, $who2id{$ioprio_who_class}) || die "failed to set priority ($prio) for $pid";
     }
 
     $current_prio = undef unless exists $args{priority};
@@ -74,7 +74,7 @@ sub set {
     my $self = shift;
     my %args = @_;
     my $priority = $args{priority} || die "parameter priority required!";
-    my $class    = $args{class}    || Linux::IOPriority::IOPRIO_CLASS_BE;
+    my $class    = $args{class}    || IOPRIO_CLASS_BE;
 
     my %who2id = ( pid => IOPRIO_PROCESS, gid => IOPRIO_PROCESS_GROUP, uid => IOPRIO_USER );
     my @pid    = keys %who2id;
@@ -89,14 +89,14 @@ sub set {
     my ($ioprio_who_class) =( grep { $args{$_}} keys %who2id) || 'pid';
     warn "who class $ioprio_who_class";
 
-    return Linux::IOPriority::set_io_priority($priority, $class, $pid, $who2id{$ioprio_who_class});
+    return set_io_priority($priority, $class, $pid, $who2id{$ioprio_who_class});
 }
 
 sub get {
     my $self = shift;
     my %args = @_;
     my $pid  = $args{pid} || $$;
-    return Linux::IOPriority::get_io_priority($pid);
+    return get_io_priority($pid);
 }
 
 sub DESTROY {
