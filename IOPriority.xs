@@ -39,23 +39,38 @@ enum {
 MODULE = Linux::IOPriority		PACKAGE = Linux::IOPriority		
 PROTOTYPES: DISABLE 
 
-SV *
-get_io_priority(int pid = 0, int ioprio_who=IOPRIO_WHO_PROCESS)
-    CODE:
+void
+get_io_priority(int pid = 0, int ioprio_who=1)
+    PPCODE:
        int ioprio_class, ioprio;
        ioprio = syscall(__NR_ioprio_get, ioprio_who, pid);
        SV * return_value;
        if ( ioprio == -1 ) {
             return_value = &PL_sv_undef;
        }
-       ioprio_class = ioprio >> IOPRIO_CLASS_SHIFT;
-       ioprio = ioprio & 0xff;
-       RETVAL = newSViv(ioprio);
-       OUTPUT:
-        RETVAL
+       else {
+           ioprio_class = ioprio >> IOPRIO_CLASS_SHIFT;
+           ioprio = ioprio & 0xff;
+           return_value = newSViv(ioprio);
+       }
+       I32 wantarray = GIMME_V;
+       SV * return_class = &PL_sv_undef;
+       if ( wantarray == G_ARRAY && SvTRUE(return_value)) {
+           EXTEND(SP,2);
+           return_class = newSViv(ioprio_class);
+       }
+       else {
+           EXTEND(SP,1);
+       }
+
+       PUSHs(sv_2mortal(return_value));
+
+       if (SvTRUE(return_class)) {
+           PUSHs(sv_2mortal(return_class));
+       }
 
 SV *
-set_io_priority(int io_prio=0,int class=2,int pid=0,int ioprio_who=IOPRIO_WHO_PROCESS)
+set_io_priority(int io_prio=0,int class=2,int pid=0,int ioprio_who=1)
     CODE:
 
     switch (io_prio) {

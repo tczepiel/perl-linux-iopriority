@@ -1,17 +1,24 @@
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More tests => 15;
 use Linux::IOPriority;
 
 pass "module loaded ok...";
 
 my $prio = set_io_priority(4,IOPRIO_CLASS_BE,$$);
-is( $prio, 4 );
+is( $prio, 4, "ioprio returned by set priority is 4" );
 
 $prio = get_io_priority();
-is($prio, 4 );
+is($prio, 4, "ioprio is 4" );
 diag("ioprio: $prio");
+
+my $ioprio_class;
+($prio,$ioprio_class) = get_io_priority();
+
+is($prio,4, "ioprio is 4 in list context");
+diag("ioprio class $ioprio_class");
+is($ioprio_class,IOPRIO_CLASS_BE,"ioprio class is 'best effort'");
 
 $prio = set_io_priority(2,IOPRIO_CLASS_BE,$$);
 is( $prio, 2 );

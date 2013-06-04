@@ -124,7 +124,7 @@ Linux::IOPriority
     my $prio    = get_io_priority($pid);
 
     # maybe we don't have appropriate permissions?
-    die "failed to set requested io priority" unless defined set_io_priority(-10);
+    die "failed to set requested io priority" unless set_io_priority(-10);
 
     set_io_priority(-10,IOPRIO_CLASS_BE,$pid);
 
