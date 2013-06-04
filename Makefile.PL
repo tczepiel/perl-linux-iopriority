@@ -1,6 +1,10 @@
 use strict;
 use warnings;
 
+unless ($^O eq 'linux') {
+    die "OS not supported.";
+}
+
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
