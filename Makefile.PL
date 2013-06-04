@@ -13,8 +13,6 @@ WriteMakefile(
     PREREQ_PM         => {},
     ($] >= 5.005 ?
       (ABSTRACT       => 'set/get your process io priority on linux',
-       AUTHOR         => 'Tomasz Czepiel <tczepiel@cpan.org>') : ()),
-    LIBS              => [''],
-    DEFINE            => '',
-    INC               => '-I.',
+       AUTHOR         => 'Tomasz Czepiel <tjmc@cpan.org>') : ()),
+    LICENSE           => 'perl',
 );
