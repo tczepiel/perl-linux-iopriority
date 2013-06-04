@@ -37,10 +37,21 @@ enum {
 
 
 MODULE = Linux::IOPriority		PACKAGE = Linux::IOPriority		
-PROTOTYPES: DISABLE 
+PROTOTYPES: ENABLE
+BOOT:
+    HV *stash;
+    stash = gv_stashpvn("Linux::IOPriority", 17, TRUE);
+    newCONSTSUB(stash,"IOPRIO_CLASS_NONE",newSViv(IOPRIO_CLASS_NONE));
+    newCONSTSUB(stash,"IOPRIO_CLASS_RT",newSViv(IOPRIO_CLASS_RT));
+    newCONSTSUB(stash,"IOPRIO_CLASS_BE",newSViv(IOPRIO_CLASS_BE));
+    newCONSTSUB(stash,"IOPRIO_CLASS_IDLE",newSViv(IOPRIO_CLASS_IDLE));
+    newCONSTSUB(stash,"IOPRIO_PROCESS",newSViv(IOPRIO_WHO_PROCESS));
+    newCONSTSUB(stash,"IOPRIO_PROCESS_GROUP",newSViv(IOPRIO_WHO_PROCESS_GROUP));
+    newCONSTSUB(stash,"IOPRIO_USER",newSViv(IOPRIO_WHO_USER));
 
 void
 get_io_priority(int pid = 0, int ioprio_who=1)
+    PROTOTYPE: DISABLE
     PPCODE:
        int ioprio_class, ioprio;
        ioprio = syscall(__NR_ioprio_get, ioprio_who, pid);
@@ -71,19 +82,19 @@ get_io_priority(int pid = 0, int ioprio_who=1)
 
 SV *
 set_io_priority(int io_prio=0,int class=2,int pid=0,int ioprio_who=1)
-    CODE:
+        PROTOTYPE: DISABLE
+        CODE:
 
-  SV * return_value;
-  if( syscall(__NR_ioprio_set,ioprio_who, pid, io_prio | class << IOPRIO_CLASS_SHIFT ) == -1 ) {
-        return_value = &PL_sv_undef;
-  }
-  else {
-      return_value = newSViv(io_prio);
-  }
+        SV * return_value;
+        if( syscall(__NR_ioprio_set,ioprio_who, pid, io_prio | class << IOPRIO_CLASS_SHIFT ) == -1 ) {
+            return_value = &PL_sv_undef;
+        }
+        else {
+          return_value = newSViv(io_prio);
+        }
 
-  RETVAL = return_value;
+        RETVAL = return_value;
 
-  OUTPUT:
-    RETVAL
-
+        OUTPUT:
+        RETVAL
 

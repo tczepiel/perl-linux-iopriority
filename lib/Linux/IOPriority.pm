@@ -5,20 +5,12 @@ use warnings;
 use base 'Exporter';
 use XSLoader;
 
-use constant {
-    IOPRIO_CLASS_NONE => 0,
-    IOPRIO_CLASS_RT   => 1,
-    IOPRIO_CLASS_BE   => 2,
-    IOPRIO_CLASS_IDLE => 3,
-};
+our $VERSION;
 
-use constant {
-    IOPRIO_PROCESS       => 1,
-    IOPRIO_PROCESS_GROUP => 2,
-    IOPRIO_USER          => 3,
-};
-
-our $VERSION = '0.02';
+BEGIN {
+    $VERSION = "0.02";
+    XSLoader::load('Linux::IOPriority', $VERSION);
+}
 
 our @EXPORT = qw(
     get_io_priority
@@ -33,9 +25,6 @@ our @EXPORT = qw(
     IOPRIO_PROCESS_GROUP
     IOPRIO_USER
 );
-
-XSLoader::load('Linux::IOPriority', $VERSION);
-
 
 sub new {
     my $class = shift;
