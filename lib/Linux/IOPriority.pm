@@ -143,12 +143,16 @@ Nothing exported by default.
     use Linux::IOPriority;
 
     # set new priority for own process
-    my $ioprio = LinuxPriority->new(
-        priority => $priority,
-    );
+    {
+        my $ioprio = LinuxPriority->new(
+            priority => $priority,
+            uid      => $uid,
+        );
+    }
+    # priority of $uid is back to what it was previously
 
     $ioprio->set(
-        uid      => $uid,
+        pid      => $uid,
         priority => $priority,
     );
 
@@ -168,7 +172,7 @@ Parameters:
 =item *
 
 priority 
-    Required.
+    optional: default none
 
 =item *
 
@@ -209,8 +213,9 @@ pid
 
 =item *
 
+pid/gid/uid
 pid
-    default: $$
+    default: 'pid' : $$
 
 =back
 
