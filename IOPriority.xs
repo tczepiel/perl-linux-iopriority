@@ -73,18 +73,6 @@ SV *
 set_io_priority(int io_prio=0,int class=2,int pid=0,int ioprio_who=1)
     CODE:
 
-    switch (io_prio) {
-        case IOPRIO_CLASS_NONE:
-            class = IOPRIO_CLASS_BE;
-            break;
-        case IOPRIO_CLASS_RT:
-        case IOPRIO_CLASS_BE:
-            break;
-        case IOPRIO_CLASS_IDLE:
-            io_prio = 7;
-           break;
-   }
-
   SV * return_value;
   if( syscall(__NR_ioprio_set,ioprio_who, pid, io_prio | class << IOPRIO_CLASS_SHIFT ) == -1 ) {
         return_value = &PL_sv_undef;
