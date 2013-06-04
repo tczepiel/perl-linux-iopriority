@@ -57,17 +57,17 @@ sub new {
 
     my $current_prio = get_io_priority($pid) || die "unable to get priority for process $pid";
 
+    my @rev;
     if ( $prio ) {
         return if ($current_prio == $prio && $prio_class == IOPRIO_CLASS_BE);
         my ($ioprio_who_class) = (grep { exists $args{$_} && $args{$_} } keys %who2id) || 'pid';
 
-        set_io_priority($prio,$prio_class,$pid, $who2id{$ioprio_who_class}) || die "failed to set priority ($prio) for $pid";
+        set_io_priority($prio,$prio_class,$pid,$who2id{$ioprio_who_class}) || die "failed to set priority ($prio) for $pid";
+        @rev = ($current_prio,$prio_class,$pid,$who2id{$ioprio_who_class});
     }
 
-    $current_prio = undef unless exists $args{priority};
-
     return 
-        bless \$current_prio => $class;
+        bless \@rev => $class;
 }
 
 sub set {
@@ -100,8 +100,8 @@ sub get {
 
 sub DESTROY {
     my $self = shift;
-    return unless defined $$self;
-    $self->set(priority => $$self);
+    return unless @$self;
+    set_io_priority(@$self) or die "unable to set io priority: @$self";
 }
 
 1;
