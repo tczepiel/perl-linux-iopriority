@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Linux::IOPriority;
 
 pass "module loaded ok...";
@@ -19,6 +19,10 @@ my $ioprio_class;
 is($prio,4, "ioprio is 4 in list context");
 diag("ioprio class $ioprio_class");
 is($ioprio_class,IOPRIO_CLASS_BE,"ioprio class is 'best effort'");
+
+set_io_priority(4,IOPRIO_CLASS_IDLE,$$);
+my @ret = get_io_priority();
+is($ret[1],IOPRIO_CLASS_IDLE, "class is idle...");
 
 $prio = set_io_priority(2,IOPRIO_CLASS_BE,$$);
 is( $prio, 2 );
