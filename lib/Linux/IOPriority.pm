@@ -250,7 +250,7 @@ L<Linux::IO_Prio>
 
 =head1 AUTHOR
 
-Tomasz Czepiel E<lt>tjmc@cpan.org<gt>
+Tomasz Czepiel E<lt>tjmc@cpan.orgE<gt>
 
 =head1 LICENSE
 
