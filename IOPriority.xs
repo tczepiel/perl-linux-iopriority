@@ -53,8 +53,8 @@ void
 get_io_priority(int pid = 0, int ioprio_who=1)
     PROTOTYPE: DISABLE
     PPCODE:
-       int ioprio_class, ioprio;
-       ioprio = syscall(__NR_ioprio_get, ioprio_who, pid);
+       int ioprio_class = 0;
+       int ioprio = syscall(__NR_ioprio_get, ioprio_who, pid);
        SV * return_value;
        if ( ioprio == -1 ) {
             return_value = &PL_sv_undef;
