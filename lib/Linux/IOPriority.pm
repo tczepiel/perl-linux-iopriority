@@ -102,9 +102,6 @@ sub DESTROY {
 
 Linux::IOPriority
 
-=head1 SYNOPSIS
-
-
 =head1 Functional Interface
 
     use Linux::IOPriority qw(
