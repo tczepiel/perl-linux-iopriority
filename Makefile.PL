@@ -10,7 +10,9 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'Linux::IOPriority',
     VERSION_FROM      => 'lib/Linux/IOPriority.pm',
-    PREREQ_PM         => {},
+    PREREQ_PM         => {
+        Carp => 0,
+    },
     ($] >= 5.005 ?
       (ABSTRACT       => 'set/get your process io priority on linux',
        AUTHOR         => 'Tomasz Czepiel <tjmc@cpan.org>') : ()),

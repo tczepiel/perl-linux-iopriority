@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use base 'Exporter';
 use XSLoader;
+use Carp qw(croak);
 
 our $VERSION;
 
@@ -45,7 +46,8 @@ sub _parse_params {
     my @pid    = keys %who2id;
 
     if ( (@args{@pid}||0) > 1 ) {
-        die "ambiguous parameters (", 
+        local $Carp::CarlLevel = 1;
+        croak "ambiguous parameters (", 
             join ",", @args{@pid},
             ")";
     }
@@ -63,11 +65,11 @@ sub new {
     $class  = ref($class) || $class;
 
     my ( $prio, $prio_class, $pid, $ioprio_who_class) = $class->_parse_params(@_);
-    my $current_prio = get_io_priority($pid) || die "unable to get priority for process $pid";
+    my $current_prio = get_io_priority($pid) || croak "unable to get priority for process $pid";
 
     if ( $prio ) {
         return if ($current_prio == $prio && $prio_class == IOPRIO_CLASS_BE);
-        set_io_priority($prio,$prio_class,$pid,$ioprio_who_class) || die "failed to set priority ($prio) for $pid";
+        set_io_priority($prio,$prio_class,$pid,$ioprio_who_class) || croak "failed to set priority ($prio) for $pid";
     }
 
     return 
@@ -77,7 +79,7 @@ sub new {
 sub set {
     my $self = shift;
     my %args = @_;
-    die "parameter priority required!" unless $args{priority};
+    croak "parameter priority required!" unless $args{priority};
 
     my @rev = $self->_parse_params(%args);
     return set_io_priority(@rev);
@@ -93,7 +95,7 @@ sub get {
 sub DESTROY {
     my $self = shift;
     return unless @$self;
-    set_io_priority(@$self) or die "unable to set io priority: @$self";
+    set_io_priority(@$self) or croak "unable to set io priority: @$self during DESTROY";
 }
 
 1;
