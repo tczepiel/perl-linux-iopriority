@@ -46,6 +46,7 @@ sub _parse_params {
     my @pid    = keys %who2id;
 
     if ( (@args{@pid}||0) > 1 ) {
+        no warnings 'once';
         local $Carp::CarlLevel = 1;
         croak "ambiguous parameters (", 
             join ",", @args{@pid},
@@ -126,10 +127,6 @@ Linux::IOPriority
 
     set_io_priority(-5,IOPRIO_CLASS_RT,$pid, IOPRIO_WHO_PROCESS_GROUP);
 
-=head2 Priority classes and process groups
-
-Nothing exported by default.
-
 =head2 Priority classes
 
     IOPRIO_CLASS_NONE 
@@ -142,6 +139,10 @@ Nothing exported by default.
     IOPRIO_PROCESS          # pid
     IOPRIO_PROCESS_GROUP    # pgid
     IOPRIO_USER             # uid
+
+=head2 EXPORT
+
+Nothing exported by default.
 
 =head1 OO Interface
 
@@ -248,6 +249,14 @@ pid
 
     my ($priority,$class) = $ioprio->get();
 
+=head1 BUGS
+
+Please report any bugs on L<http://rt.cpan.org>
+
+=head1 SEE ALSO
+
+L<Linux::IO_Prio>
+
 =head1 AUTHOR
 
 Tomasz Czepiel E<lt>tjmc@cpan.org<gt>
@@ -257,9 +266,5 @@ Tomasz Czepiel E<lt>tjmc@cpan.org<gt>
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.12.4 or,
 at your option, any later version of Perl 5 you may have available.
-
-=head1 SEE ALSO
-
-L<Linux::IO_Prio>
 
 =cut
