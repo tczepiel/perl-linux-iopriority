@@ -23,7 +23,7 @@ my %export = map { $_ => undef } qw(
     IOPRIO_CLASS_IDLE
 
     IOPRIO_PROCESS
-    IOPRIO_PROCESS_GROUP
+    IOPRIO_PROCESS_GROUP_ID
     IOPRIO_USER
 );
 
@@ -42,7 +42,7 @@ sub _parse_params {
     my $class  = shift;
     my %args   = @_;
 
-    my %who2id = ( pid => IOPRIO_PROCESS, gid => IOPRIO_PROCESS_GROUP, uid => IOPRIO_USER );
+    my %who2id = ( pid => IOPRIO_PROCESS, gid => IOPRIO_PROCESS_GROUP_ID, uid => IOPRIO_USER );
     my @pid    = keys %who2id;
 
     if ( (@args{@pid}||0) > 1 ) {
@@ -105,6 +105,10 @@ sub DESTROY {
 
 Linux::IOPriority
 
+=head1 DESCRIPTION
+
+Set/get the IO priority of (process,thread,uid) on Linux.
+
 =head1 Functional Interface
 
     use Linux::IOPriority qw(
@@ -113,6 +117,7 @@ Linux::IOPriority
 
         IOPRIO_CLASS_BE
         IOPRIO_CLASS_RT
+        ...
     );
 
     my $prority = get_io_priority();
@@ -125,19 +130,17 @@ Linux::IOPriority
 
     # set the threads' priority
 
-    set_io_priority(-5,IOPRIO_CLASS_RT,$pid, IOPRIO_WHO_PROCESS_GROUP);
+    set_io_priority(-5,IOPRIO_CLASS_RT,$pid,IOPRIO_PROCESS_GROUP_ID);
 
-=head2 Priority classes
-
+=head2 Constants
+    
     IOPRIO_CLASS_NONE 
     IOPRIO_CLASS_RT    # Realtime
     IOPRIO_CLASS_BE    # Best effort
     IOPRIO_CLASS_IDLE
 
-=head2 Process groups
-
     IOPRIO_PROCESS          # pid
-    IOPRIO_PROCESS_GROUP    # pgid
+    IOPRIO_PROCESS_GROUP_ID # pgid
     IOPRIO_USER             # uid
 
 =head2 EXPORT
@@ -166,10 +169,6 @@ Nothing exported by default.
         pid => $somepid,
     );
 
-=head1 DESCRIPTION
-
-Set/get the IO priority of (process,thread,uid) on Linux.
-    
 =head2 METHODS
 
 =head3 new
@@ -178,20 +177,17 @@ Parameters:
 
 =over 
 
-=item *
+=item * priority
 
-priority 
-    optional: default none
+optional: default none
 
-=item *
+=item * class
 
-class
-    optional, default 'best effort'
+optional, default 'best effort'
 
-=item *
+=item * pid/uid/gid
 
-pid
-    default: $$
+default: $$
 
 =back
 
@@ -207,20 +203,17 @@ pid
 
 =over 
 
-=item *
+=item * priority
 
-priority 
-    Required.
+Required.
 
-=item *
+=item * class
 
-class
-    optional, default 'best effort'
+optional, default 'best effort'
 
-=item *
+=item * pid/uid/gid
 
-pid
-    default: $$
+default: $$
 
 =back
 
@@ -236,11 +229,9 @@ pid
 
 =over
 
-=item *
+=item * pid/gid/uid
 
-pid/gid/uid
-pid
-    default: 'pid' : $$
+default: 'pid' : $$
 
 =back
 
