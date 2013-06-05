@@ -15,4 +15,9 @@ WriteMakefile(
       (ABSTRACT       => 'set/get your process io priority on linux',
        AUTHOR         => 'Tomasz Czepiel <tjmc@cpan.org>') : ()),
     LICENSE           => 'perl',
+    META_MERGE => {
+        resources => {
+            repository => 'git://github.com/tczepiel/perl-linux-iopriority.git',
+        },
+    },
 );
