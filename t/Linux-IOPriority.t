@@ -1,8 +1,21 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
-use Linux::IOPriority;
+use Test::More tests => 22;
+
+use Linux::IOPriority qw(
+    get_io_priority
+    set_io_priority
+
+    IOPRIO_CLASS_NONE
+    IOPRIO_CLASS_RT 
+    IOPRIO_CLASS_BE
+    IOPRIO_CLASS_IDLE
+
+    IOPRIO_PROCESS
+    IOPRIO_PROCESS_GROUP
+    IOPRIO_USER
+);
 
 pass "module loaded ok...";
 
@@ -62,7 +75,15 @@ ok($ioprio->set( priority => 5 ), 'iopriority set returns true');
 $prio = get_io_priority();
 diag("priority $prio");
 ok($prio == 5, 'ipriority now at 5');
-diag($ioprio->get());
+diag(scalar $ioprio->get());
 ok($ioprio->get() == 5, 'priority reported at 5');
+
+my @prio = $ioprio->get();
+is($prio[0],5, "priority at 5");
+is($prio[1],IOPRIO_CLASS_BE, "priority class is 'best effort'");
+
+ok($ioprio->set(priority => 6, class => 'IOPRIO_CLASS_IDLE'));
+
+
 
 

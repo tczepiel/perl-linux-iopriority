@@ -12,7 +12,7 @@ BEGIN {
     XSLoader::load('Linux::IOPriority', $VERSION);
 }
 
-our @EXPORT = qw(
+my %export = map { $_ => undef } qw(
     get_io_priority
     set_io_priority
 
@@ -25,6 +25,17 @@ our @EXPORT = qw(
     IOPRIO_PROCESS_GROUP
     IOPRIO_USER
 );
+
+our @EXPORT_OK = keys %export;
+
+sub _get_class_value {
+    return unless defined $_[0];
+    return $_[0] if length($_[0]) == 1;
+    return if not exists $export{$_[0]};
+
+    no strict 'refs';
+    return &{"$_[0]"};
+}
 
 sub _parse_params {
     my $class  = shift;
@@ -41,7 +52,7 @@ sub _parse_params {
 
     my $prio       = $args{priority};
     my ($pid)      = grep { defined } (@args{@pid}, $$);
-    my $prio_class = $args{class} || IOPRIO_CLASS_BE;
+    my $prio_class = _get_class_value($args{class}) || IOPRIO_CLASS_BE;
     my ($ioprio_who_class) = (grep { exists $args{$_} && $args{$_} } keys %who2id) || 'pid';
 
     return ($prio,$prio_class,$pid,$who2id{$ioprio_who_class});
@@ -90,6 +101,9 @@ sub DESTROY {
 =head1 NAME
 
 Linux::IOPriority
+
+=head1 SYNOPSIS
+
 
 =head1 Functional Interface
 
@@ -141,7 +155,7 @@ Nothing exported by default.
             uid      => $uid,
         );
     }
-    # priority of $uid is back to what it was previously
+    # $ioprio fails out of scope, iopriority restored to previous value
 
     $ioprio->set(
         pid      => $uid,
@@ -152,6 +166,9 @@ Nothing exported by default.
         pid => $somepid,
     );
 
+=head1 DESCRIPTION
+
+Set/get the IO priority of (process,thread,uid) on Linux.
     
 =head2 METHODS
 
@@ -178,6 +195,14 @@ pid
 
 =back
 
+    my $ioprio = Linux::IOPriority->new(
+        priority => 4,
+        uid      => 333234,
+    );
+
+    my $ioprio = Linux::IOPriority->new();
+
+
 =head3 set
 
 =over 
@@ -199,6 +224,14 @@ pid
 
 =back
 
+    my $ioprio = Linux::IOPriority->new;
+
+    $ioprio->set(
+        pid      => 4334534,
+        priority =>  1,
+        class    => 'IOPRIO_CLASS_RT',
+    );
+
 =head3 get
 
 =over
@@ -210,6 +243,21 @@ pid
     default: 'pid' : $$
 
 =back
+
+
+    my $ioprio = Linux::IOPriority->new;
+
+    my ($priority,$class) = $ioprio->get();
+
+=head1 AUTHOR
+
+Tomasz Czepiel E<lt>tjmc@cpan.org<gt>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.12.4 or,
+at your option, any later version of Perl 5 you may have available.
 
 =head1 SEE ALSO
 
