@@ -26,11 +26,10 @@ our @EXPORT = qw(
     IOPRIO_USER
 );
 
-sub new {
-    my $class = shift;
-    my %args  = @_;
+sub _parse_params {
+    my $class  = shift;
+    my %args   = @_;
 
-    $class     = ref($class) || $class;
     my %who2id = ( pid => IOPRIO_PROCESS, gid => IOPRIO_PROCESS_GROUP, uid => IOPRIO_USER );
     my @pid    = keys %who2id;
 
@@ -43,41 +42,34 @@ sub new {
     my $prio       = $args{priority};
     my ($pid)      = grep { defined } (@args{@pid}, $$);
     my $prio_class = $args{class} || IOPRIO_CLASS_BE;
+    my ($ioprio_who_class) = (grep { exists $args{$_} && $args{$_} } keys %who2id) || 'pid';
 
+    return ($prio,$prio_class,$pid,$who2id{$ioprio_who_class});
+}
+
+sub new {
+    my $class = shift;
+    $class  = ref($class) || $class;
+
+    my ( $prio, $prio_class, $pid, $ioprio_who_class) = $class->_parse_params(@_);
     my $current_prio = get_io_priority($pid) || die "unable to get priority for process $pid";
 
-    my @rev;
     if ( $prio ) {
         return if ($current_prio == $prio && $prio_class == IOPRIO_CLASS_BE);
-        my ($ioprio_who_class) = (grep { exists $args{$_} && $args{$_} } keys %who2id) || 'pid';
-
-        set_io_priority($prio,$prio_class,$pid,$who2id{$ioprio_who_class}) || die "failed to set priority ($prio) for $pid";
-        @rev = ($current_prio,$prio_class,$pid,$who2id{$ioprio_who_class});
+        set_io_priority($prio,$prio_class,$pid,$ioprio_who_class) || die "failed to set priority ($prio) for $pid";
     }
 
     return 
-        bless \@rev => $class;
+        bless [ $current_prio, $prio_class, $pid, $ioprio_who_class ] => $class;
 }
 
 sub set {
     my $self = shift;
     my %args = @_;
-    my $priority = $args{priority} || die "parameter priority required!";
-    my $class    = $args{class}    || IOPRIO_CLASS_BE;
+    die "parameter priority required!" unless $args{priority};
 
-    my %who2id = ( pid => IOPRIO_PROCESS, gid => IOPRIO_PROCESS_GROUP, uid => IOPRIO_USER );
-    my @pid    = keys %who2id;
-
-    if ( (@args{@pid}||0) > 1 ) {
-        die "ambiguous parameters (", 
-            join ",", grep { exists $args{$_} } @args{@pid},
-            ")";
-    }
-
-    my ($pid) = grep { defined } @args{@pid}, $$;
-    my ($ioprio_who_class) =( grep { $args{$_}} keys %who2id) || 'pid';
-
-    return set_io_priority($priority, $class, $pid, $who2id{$ioprio_who_class});
+    my @rev = $self->_parse_params(%args);
+    return set_io_priority(@rev);
 }
 
 sub get {
