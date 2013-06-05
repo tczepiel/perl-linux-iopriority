@@ -219,4 +219,8 @@ pid
 
 =back
 
+=head1 SEE ALSO
+
+L<Linux::IO_Prio>
+
 =cut
