@@ -13,6 +13,19 @@ BEGIN {
     XSLoader::load('Linux::IOPriority', $VERSION);
 }
 
+use constant {
+    IOPRIO_CLASS_NONE   => 0,
+    IOPRIO_CLASS_RT     => 1,
+    IOPRIO_CLASS_BE     => 2,
+    IOPRIO_CLASS_IDLE   => 3,
+
+    IOPRIO_PROCESS          => 1,
+    IOPRIO_PROCESS_GROUP_ID => 2,
+    IOPRIO_USER             => 3,
+
+    IOPRIO_CLASS_SHIFT  => 13,
+};
+
 my %export = map { $_ => undef } qw(
     get_io_priority
     set_io_priority
@@ -28,6 +41,31 @@ my %export = map { $_ => undef } qw(
 );
 
 our @EXPORT_OK = keys %export;
+
+sub get_io_priority {
+    my $pid        = shift || 0;
+    my $ioprio_who = shift || IOPRIO_PROCESS;
+
+    my $ioprio = syscall(__NR_ioprio_get, $ioprio_who, $pid);
+    return undef if $ioprio == -1;
+    my $ioprio_class = $ioprio >> IOPRIO_CLASS_SHIFT;
+    $ioprio = $ioprio & 0xff;
+
+    return wantarray ? ( $ioprio, $ioprio_class) : $ioprio;
+}
+
+sub set_io_priority {
+    my $ioprio     = shift || 0;
+    my $class      = shift || IOPRIO_CLASS_BE;
+    my $pid        = shift || $$;
+    my $ioprio_who = shift || IOPRIO_PROCESS;
+
+    if ( syscall(__NR_ioprio_set, $ioprio_who, $pid, $ioprio  | $class << IOPRIO_CLASS_SHIFT ) == - 1 ) {
+        return;
+    }
+
+    return $ioprio;
+}
 
 sub _get_class_value {
     return unless defined $_[0];
