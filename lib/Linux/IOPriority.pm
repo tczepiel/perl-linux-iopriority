@@ -9,7 +9,7 @@ use Carp qw(croak);
 our $VERSION;
 
 BEGIN {
-    $VERSION = "0.02";
+    $VERSION = "0.01";
     XSLoader::load('Linux::IOPriority', $VERSION);
 }
 
