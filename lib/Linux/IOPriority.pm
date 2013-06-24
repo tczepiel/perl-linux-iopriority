@@ -84,8 +84,7 @@ sub _parse_params {
     my @pid    = keys %who2id;
 
     if ( (@args{@pid}||0) > 1 ) {
-        no warnings 'once';
-        local $Carp::CarlLevel = 1;
+        local $Carp::CarpLevel = 1;
         croak "ambiguous parameters (", 
             join ",", @args{@pid},
             ")";
